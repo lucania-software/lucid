@@ -34,6 +34,7 @@ export class Application {
     public async start() {
         await this.states.load();
         await this.initialize();
+        this._running = true;
         this._gameTask = new Promise<void>((resolve) => {
             let lastAnimationFrameTime = performance.now();
             const receiveFrame: FrameRequestCallback = (currentTime) => {
