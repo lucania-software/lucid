@@ -15,10 +15,10 @@ export class RenderPassEncoder {
         this._handle.setBindGroup(0, bindGroup["_handle"]);
         this._handle.setVertexBuffer(0, model.vertexBuffer["_handle"]);
         if (model.indexBuffer === undefined) {
-            this._handle.draw(model.vertexBuffer.size);
+            this._handle.draw(model.vertexBuffer.count);
         } else {
             this._handle.setIndexBuffer(model.indexBuffer["_handle"], "uint16");
-            this._handle.drawIndexed(model.indexBuffer.size);
+            this._handle.drawIndexed(model.indexBuffer.count);
         }
     }
 

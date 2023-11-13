@@ -4,6 +4,7 @@ export class Buffer {
 
     public readonly renderer: Renderer;
     public readonly size: number;
+    public readonly count: number;
     public readonly label?: string;
 
     private readonly _handle: GPUBuffer;
@@ -13,9 +14,10 @@ export class Buffer {
      * @param usage @see {@link Buffer.USAGE}
      * @param size 
      */
-    public constructor(renderer: Renderer, usage: number, size: number, label?: string) {
+    public constructor(renderer: Renderer, usage: number, size: number, count: number, label?: string) {
         this.renderer = renderer;
         this.size = size;
+        this.count = count;
         this.label = label;
         this._handle = renderer.underlying.device.createBuffer({ label, size, usage: usage | GPUBufferUsage.COPY_DST });
     }
@@ -31,7 +33,7 @@ export class Buffer {
     }
 
     public static create(renderer: Renderer, usage: number, source: Float64Array | Float32Array | Uint8Array | Uint16Array | Uint32Array, label?: string) {
-        const buffer = new Buffer(renderer, usage, source.byteLength, label);
+        const buffer = new Buffer(renderer, usage, source.byteLength, source.length, label);
         buffer.write(source, 0, 0, source.length);
         return buffer;
     }

@@ -4229,6 +4229,7 @@
 	class Buffer {
 	    renderer;
 	    size;
+	    count;
 	    label;
 	    _handle;
 	    /**
@@ -4236,9 +4237,10 @@
 	     * @param usage @see {@link Buffer.USAGE}
 	     * @param size
 	     */
-	    constructor(renderer, usage, size, label) {
+	    constructor(renderer, usage, size, count, label) {
 	        this.renderer = renderer;
 	        this.size = size;
+	        this.count = count;
 	        this.label = label;
 	        this._handle = renderer.underlying.device.createBuffer({ label, size, usage: usage | GPUBufferUsage.COPY_DST });
 	    }
@@ -4252,7 +4254,7 @@
 	        this.renderer.underlying.device.queue.writeBuffer(this._handle, destinationOffset, sourceData, sourceOffset, size);
 	    }
 	    static create(renderer, usage, source, label) {
-	        const buffer = new Buffer(renderer, usage, source.byteLength, label);
+	        const buffer = new Buffer(renderer, usage, source.byteLength, source.length, label);
 	        buffer.write(source, 0, 0, source.length);
 	        return buffer;
 	    }
@@ -4324,11 +4326,11 @@
 	        this._handle.setBindGroup(0, bindGroup["_handle"]);
 	        this._handle.setVertexBuffer(0, model.vertexBuffer["_handle"]);
 	        if (model.indexBuffer === undefined) {
-	            this._handle.draw(model.vertexBuffer.size);
+	            this._handle.draw(model.vertexBuffer.count);
 	        }
 	        else {
 	            this._handle.setIndexBuffer(model.indexBuffer["_handle"], "uint16");
-	            this._handle.drawIndexed(model.indexBuffer.size);
+	            this._handle.drawIndexed(model.indexBuffer.count);
 	        }
 	    }
 	    static create(renderPassEncoder) {

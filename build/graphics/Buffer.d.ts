@@ -2,6 +2,7 @@ import { Renderer } from "./Renderer";
 export declare class Buffer {
     readonly renderer: Renderer;
     readonly size: number;
+    readonly count: number;
     readonly label?: string;
     private readonly _handle;
     /**
@@ -9,7 +10,7 @@ export declare class Buffer {
      * @param usage @see {@link Buffer.USAGE}
      * @param size
      */
-    constructor(renderer: Renderer, usage: number, size: number, label?: string);
+    constructor(renderer: Renderer, usage: number, size: number, count: number, label?: string);
     write(sourceData: BufferSource | number[], destinationOffset?: number, sourceOffset?: number, size?: number): void;
     static create(renderer: Renderer, usage: number, source: Float64Array | Float32Array | Uint8Array | Uint16Array | Uint32Array, label?: string): Buffer;
     static readonly USAGE: {
