@@ -30,8 +30,7 @@ export class Buffer {
         this.renderer.underlying.device.queue.writeBuffer(this._handle, destinationOffset, sourceData, sourceOffset, size);
     }
 
-    public static create(renderer: Renderer, usage: number, data: number[], label?: string) {
-        const source = new Float32Array(data);
+    public static create(renderer: Renderer, usage: number, source: Float64Array | Float32Array | Uint8Array | Uint16Array | Uint32Array, label?: string) {
         const buffer = new Buffer(renderer, usage, source.byteLength, label);
         buffer.write(source, 0, 0, source.length);
         return buffer;
