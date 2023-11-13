@@ -4251,8 +4251,7 @@
 	        }
 	        this.renderer.underlying.device.queue.writeBuffer(this._handle, destinationOffset, sourceData, sourceOffset, size);
 	    }
-	    static create(renderer, usage, data, label) {
-	        const source = new Float32Array(data);
+	    static create(renderer, usage, source, label) {
 	        const buffer = new Buffer(renderer, usage, source.byteLength, label);
 	        buffer.write(source, 0, 0, source.length);
 	        return buffer;

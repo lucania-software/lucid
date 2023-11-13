@@ -11,7 +11,7 @@ export declare class Buffer {
      */
     constructor(renderer: Renderer, usage: number, size: number, label?: string);
     write(sourceData: BufferSource | number[], destinationOffset?: number, sourceOffset?: number, size?: number): void;
-    static create(renderer: Renderer, usage: number, data: number[], label?: string): Buffer;
+    static create(renderer: Renderer, usage: number, source: Float64Array | Float32Array | Uint8Array | Uint16Array | Uint32Array, label?: string): Buffer;
     static readonly USAGE: {
         readonly MAP_READ: number;
         readonly MAP_WRITE: number;
