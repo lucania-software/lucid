@@ -4228,16 +4228,18 @@
 	class Buffer {
 	    renderer;
 	    size;
+	    label;
 	    _handle;
 	    /**
 	     * @param renderer
 	     * @param usage @see {@link Buffer.USAGE}
 	     * @param size
 	     */
-	    constructor(renderer, usage, size) {
+	    constructor(renderer, usage, size, label) {
 	        this.renderer = renderer;
 	        this.size = size;
-	        this._handle = renderer.underlying.device.createBuffer({ size, usage: usage | GPUBufferUsage.COPY_DST });
+	        this.label = label;
+	        this._handle = renderer.underlying.device.createBuffer({ label, size, usage: usage | GPUBufferUsage.COPY_DST });
 	    }
 	    write(sourceData, destinationOffset = 0, sourceOffset = 0, size) {
 	        if (Array.isArray(sourceData)) {
@@ -4248,9 +4250,9 @@
 	        }
 	        this.renderer.underlying.device.queue.writeBuffer(this._handle, destinationOffset, sourceData, sourceOffset, size);
 	    }
-	    static create(renderer, usage, data) {
+	    static create(renderer, usage, data, label) {
 	        const source = new Float32Array(data);
-	        const buffer = new Buffer(renderer, usage, source.byteLength);
+	        const buffer = new Buffer(renderer, usage, source.byteLength, label);
 	        buffer.write(source, 0, 0, source.length);
 	        return buffer;
 	    }
@@ -4304,7 +4306,7 @@
 	            return resource["_handle"].createView();
 	        }
 	        else if (resource instanceof Buffer) {
-	            return { label: "Buffer", buffer: resource["_handle"] };
+	            return { label: resource.label, buffer: resource["_handle"] };
 	        }
 	        else {
 	            throw new shared.Error.Fatal("Unable to get underlying resource while attempting to bind.");

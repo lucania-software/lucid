@@ -34,7 +34,7 @@ export class BindGroup {
         } else if (resource instanceof Texture) {
             return resource["_handle"].createView();
         } else if (resource instanceof Buffer) {
-            return { label: "Buffer", buffer: resource["_handle"] };
+            return { label: resource.label, buffer: resource["_handle"] };
         } else {
             throw new Error.Fatal("Unable to get underlying resource while attempting to bind.");
         }
