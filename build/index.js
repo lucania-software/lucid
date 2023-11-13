@@ -4203,16 +4203,13 @@
 	     * @param dimensions
 	     */
 	    constructor(renderer, usage, dimensions) {
-	        console.log("Hello? Please run");
 	        this.dimensions = buildExports.VectorToolbox.fromSource(2, dimensions);
 	        this.renderer = renderer;
-	        console.log("Please try and create texture");
 	        this._handle = renderer.underlying.device.createTexture({
 	            size: this.dimensions,
 	            format: "rgba8unorm",
 	            usage
 	        });
-	        console.log("Done!");
 	    }
 	    static USAGE = {
 	        COPY_SOURCE: GPUTextureUsage.COPY_SRC,
@@ -4222,9 +4219,7 @@
 	        RENDER_ATTACHMENT: GPUTextureUsage.RENDER_ATTACHMENT
 	    };
 	    static create(renderer, usage, source) {
-	        console.log("Calling texture constructor....");
 	        const texture = new Texture(renderer, usage, [source.width, source.height]);
-	        console.log("Called");
 	        renderer.underlying.device.queue.copyExternalImageToTexture({ source }, { texture: texture._handle }, texture.dimensions);
 	        return texture;
 	    }

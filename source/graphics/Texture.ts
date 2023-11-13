@@ -18,16 +18,13 @@ export class Texture {
      * @param dimensions 
      */
     public constructor(renderer: Renderer, usage: number, dimensions: VectorSource<Tuple2>) {
-        console.log("Hello? Please run");
         this.dimensions = VectorToolbox.fromSource(2, dimensions);
         this.renderer = renderer;
-        console.log("Please try and create texture");
         this._handle = renderer.underlying.device.createTexture({
             size: this.dimensions,
             format: "rgba8unorm",
             usage
         });
-        console.log("Done!");
     }
 
     public static readonly USAGE = <const>{
@@ -39,9 +36,7 @@ export class Texture {
     };
 
     public static create(renderer: Renderer, usage: number, source: TextureSource) {
-        console.log("Calling texture constructor....");
         const texture = new Texture(renderer, usage, [source.width, source.height]);
-        console.log("Called");
         renderer.underlying.device.queue.copyExternalImageToTexture({ source }, { texture: texture._handle }, texture.dimensions);
         return texture;
     }
