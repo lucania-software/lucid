@@ -1,6 +1,4 @@
 export * from "./Application";
-export * from "./utilities/Animator";
-
 export * from "./graphics/BindGroup";
 export * from "./graphics/Buffer";
 export * from "./graphics/CommandEncoder";
@@ -13,3 +11,4 @@ export * from "./graphics/Texture";
 export * from "./graphics/TextureSampler";
 export * from "./graphics/Uniform";
 export * from "./graphics/VertexShader";
+export * from "./utilities/Animator";

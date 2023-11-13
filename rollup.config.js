@@ -9,7 +9,7 @@ export default {
     output: {
         file: "./build/index.js",
         name: "Lucid",
-        format: "iife"
+        format: "umd"
     },
     plugins: [
         TypeScriptPlugin({ tsconfig: "./source/tsconfig.json" }),

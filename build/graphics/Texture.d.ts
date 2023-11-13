@@ -1,5 +1,5 @@
 import { Tuple2, Vector2, VectorSource } from "@lucania/vectorics";
-import { Renderer } from "..";
+import { Renderer } from "./Renderer";
 export type TextureSource = ImageBitmap | HTMLVideoElement | HTMLCanvasElement | OffscreenCanvas;
 export type FilterMode = "linear" | "nearest";
 export declare class Texture {

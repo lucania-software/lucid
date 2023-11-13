@@ -1,5 +1,6 @@
-import { BindGroup, Pipeline } from "..";
+import { BindGroup } from "./BindGroup";
 import { Model } from "./Model";
+import { Pipeline } from "./Pipeline";
 export declare class RenderPassEncoder {
     private _handle;
     private constructor();

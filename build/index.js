@@ -1,5 +1,8 @@
-var Lucid = (function (exports) {
-	'use strict';
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.Lucid = {}));
+})(this, (function (exports) { 'use strict';
 
 	var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -4190,129 +4193,6 @@ var Lucid = (function (exports) {
 	})(build, build.exports);
 	var buildExports = build.exports;
 
-	/**
-	 * Controls the animation of a spritesheet by providing dynamic texture coordinates.
-	 */
-	class Animator {
-	    sheetSize;
-	    spriteSize;
-	    spriteGrid;
-	    _frameTime;
-	    _remainingFrameTime;
-	    _currentSpriteIndex = 0;
-	    _animations;
-	    _currentAnimationName;
-	    /**
-	     * @param sheetSize The size of the spritesheet to animate in pixel coordinates.
-	     * @param spriteSize The size of a single sprite in pixel coordinates.
-	     * @param animations A mapping of names to {@link AnimationMeta}s.
-	     * @see {@link AnimationMap}.
-	     */
-	    constructor(sheetSize, spriteSize, animations) {
-	        this.sheetSize = buildExports.VectorToolbox.fromSource(2, sheetSize);
-	        this.spriteSize = buildExports.VectorToolbox.fromSource(2, spriteSize);
-	        shared.Data.assert(this.sheetSize.width % this.spriteSize.width === 0, `Sprites of width ${this.spriteSize.width} do not pack nicely into a sprite sheet of width ${this.sheetSize.width}!`);
-	        shared.Data.assert(this.sheetSize.height % this.spriteSize.height === 0, `Sprites of height ${this.spriteSize.height} do not pack nicely into a sprite sheet of height ${this.sheetSize.height}!`);
-	        shared.Data.assert(Object.keys(animations).length > 0, `Attempted to create an animator without any animations supplied!`);
-	        this.spriteGrid = new buildExports.Vector2(this.sheetSize.width / this.spriteSize.width, this.sheetSize.height / this.spriteSize.height);
-	        this._frameTime = 1 / 12;
-	        this._remainingFrameTime = 0;
-	        this._animations = animations;
-	        this._currentAnimationName = Object.keys(this._animations)[0];
-	        const spriteCount = this.spriteGrid.width * this.spriteGrid.height;
-	        for (const name in animations) {
-	            shared.Data.assert(animations[name].first < spriteCount, `First sprite index ${animations[name].first} in "${name}" animation is outside the bounds of the supplied ` +
-	                `${this.spriteGrid.width}x${this.spriteGrid.height} sprite sheet! The index of the last sprite in this sheet is ${spriteCount - 1}.`);
-	            shared.Data.assert(animations[name].last < spriteCount, `Last sprite index ${animations[name].last} in "${name}" animation is outside the bounds of the supplied ` +
-	                `${this.spriteGrid.width}x${this.spriteGrid.height} sprite sheet! The index of the last sprite in this sheet is ${spriteCount - 1}.`);
-	        }
-	    }
-	    get spriteIndex() {
-	        return this._currentSpriteIndex;
-	    }
-	    set currentAnimation(name) {
-	        this._currentAnimationName = name;
-	    }
-	    /**
-	     * Gets the default frame rate for this animator.
-	     *
-	     * @note This value will only be used by animations that do not have their own frameRate value set.
-	     */
-	    get frameRate() {
-	        return 1 / this._frameTime;
-	    }
-	    /**
-	     * Sets the default frame rate for this animator.
-	     *
-	     * @note This value will only be used by animations that do not have their own frameRate value set.
-	     */
-	    set frameRate(value) {
-	        this._frameTime = 1 / value;
-	    }
-	    /**
-	     * Checks for required frame updates to pursue the current animations desired frame rate.
-	     * @param deltaTime The time since last frame. Supplied by the {@link Application}.
-	     */
-	    update(deltaTime) {
-	        if (this._remainingFrameTime <= 0) {
-	            const currentAnimationMeta = this.getCurrentAnimationMeta();
-	            const frameTime = currentAnimationMeta.frameRate === undefined ? this._frameTime : 1 / currentAnimationMeta.frameRate;
-	            this._remainingFrameTime += frameTime;
-	            this._currentSpriteIndex += 1;
-	            if (this.spriteIndex > currentAnimationMeta.last) {
-	                this._currentSpriteIndex = currentAnimationMeta.first;
-	            }
-	        }
-	        this._remainingFrameTime -= deltaTime;
-	    }
-	    /**
-	     * @returns The meta information about the current animation.
-	     * @see {@link Animator.getAnimationMeta} for more information.
-	     */
-	    getCurrentAnimationMeta() {
-	        return this.getAnimationMeta(this._currentAnimationName);
-	    }
-	    /**
-	     * Gets the meta information about an animation by name.
-	     * @param name The name of the animation.
-	     * @returns The meta information of the registered animation specified by "name".
-	     * @see {@link AnimationMeta}
-	     */
-	    getAnimationMeta(name) {
-	        return this._animations[name];
-	    }
-	    /**
-	     * Gets the pixel coordinate bounds of a sprite within the sheet.
-	     * @param spriteIndex The index of the sprite to get the bounds of within the sheet. Do not specify to get the bounds of the current sprite of the animation.
-	     * @returns The coordinate bounds (x, y, width, height) of the sprite in pixel coordinates.
-	     */
-	    getPixelBounds(spriteIndex = this._currentSpriteIndex) {
-	        return new buildExports.Vector4(this.spriteSize.width * Math.floor(spriteIndex % this.spriteGrid.width), this.spriteSize.height * Math.floor(spriteIndex / this.spriteGrid.width), this.spriteSize.width, this.spriteSize.height);
-	    }
-	    /**
-	     * Gets the UV coordinate of a sprite within the sheet.
-	     * @param spriteIndex The index of the sprite to get the bounds of within the sheet. Do not specify to get the bounds of the current sprite of the animation.
-	     * @returns The texture coordinates bounds (x, y, width, height) of the sprite in UV coordinates.
-	     */
-	    getTextureBounds(spriteIndex = this._currentSpriteIndex) {
-	        const bounds = this.getPixelBounds(spriteIndex);
-	        return new buildExports.Vector4(bounds.x / this.sheetSize.width, bounds.y / this.sheetSize.height, bounds.width / this.sheetSize.width, bounds.height / this.sheetSize.height);
-	    }
-	    getTextureCoordinates(spriteIndex = this._currentSpriteIndex) {
-	        const bounds = this.getPixelBounds(spriteIndex);
-	        return [
-	            bounds.x / this.sheetSize.width,
-	            bounds.y / this.sheetSize.height,
-	            (bounds.x + bounds.width) / this.sheetSize.width,
-	            bounds.y / this.sheetSize.height,
-	            (bounds.x + bounds.width) / this.sheetSize.width,
-	            (bounds.y + bounds.height) / this.sheetSize.height,
-	            bounds.x / this.sheetSize.width,
-	            (bounds.y + bounds.height) / this.sheetSize.height
-	        ];
-	    }
-	}
-
 	class Texture {
 	    renderer;
 	    dimensions;
@@ -4614,6 +4494,129 @@ var Lucid = (function (exports) {
 	    }
 	}
 
+	/**
+	 * Controls the animation of a spritesheet by providing dynamic texture coordinates.
+	 */
+	class Animator {
+	    sheetSize;
+	    spriteSize;
+	    spriteGrid;
+	    _frameTime;
+	    _remainingFrameTime;
+	    _currentSpriteIndex = 0;
+	    _animations;
+	    _currentAnimationName;
+	    /**
+	     * @param sheetSize The size of the spritesheet to animate in pixel coordinates.
+	     * @param spriteSize The size of a single sprite in pixel coordinates.
+	     * @param animations A mapping of names to {@link AnimationMeta}s.
+	     * @see {@link AnimationMap}.
+	     */
+	    constructor(sheetSize, spriteSize, animations) {
+	        this.sheetSize = buildExports.VectorToolbox.fromSource(2, sheetSize);
+	        this.spriteSize = buildExports.VectorToolbox.fromSource(2, spriteSize);
+	        shared.Data.assert(this.sheetSize.width % this.spriteSize.width === 0, `Sprites of width ${this.spriteSize.width} do not pack nicely into a sprite sheet of width ${this.sheetSize.width}!`);
+	        shared.Data.assert(this.sheetSize.height % this.spriteSize.height === 0, `Sprites of height ${this.spriteSize.height} do not pack nicely into a sprite sheet of height ${this.sheetSize.height}!`);
+	        shared.Data.assert(Object.keys(animations).length > 0, `Attempted to create an animator without any animations supplied!`);
+	        this.spriteGrid = new buildExports.Vector2(this.sheetSize.width / this.spriteSize.width, this.sheetSize.height / this.spriteSize.height);
+	        this._frameTime = 1 / 12;
+	        this._remainingFrameTime = 0;
+	        this._animations = animations;
+	        this._currentAnimationName = Object.keys(this._animations)[0];
+	        const spriteCount = this.spriteGrid.width * this.spriteGrid.height;
+	        for (const name in animations) {
+	            shared.Data.assert(animations[name].first < spriteCount, `First sprite index ${animations[name].first} in "${name}" animation is outside the bounds of the supplied ` +
+	                `${this.spriteGrid.width}x${this.spriteGrid.height} sprite sheet! The index of the last sprite in this sheet is ${spriteCount - 1}.`);
+	            shared.Data.assert(animations[name].last < spriteCount, `Last sprite index ${animations[name].last} in "${name}" animation is outside the bounds of the supplied ` +
+	                `${this.spriteGrid.width}x${this.spriteGrid.height} sprite sheet! The index of the last sprite in this sheet is ${spriteCount - 1}.`);
+	        }
+	    }
+	    get spriteIndex() {
+	        return this._currentSpriteIndex;
+	    }
+	    set currentAnimation(name) {
+	        this._currentAnimationName = name;
+	    }
+	    /**
+	     * Gets the default frame rate for this animator.
+	     *
+	     * @note This value will only be used by animations that do not have their own frameRate value set.
+	     */
+	    get frameRate() {
+	        return 1 / this._frameTime;
+	    }
+	    /**
+	     * Sets the default frame rate for this animator.
+	     *
+	     * @note This value will only be used by animations that do not have their own frameRate value set.
+	     */
+	    set frameRate(value) {
+	        this._frameTime = 1 / value;
+	    }
+	    /**
+	     * Checks for required frame updates to pursue the current animations desired frame rate.
+	     * @param deltaTime The time since last frame. Supplied by the {@link Application}.
+	     */
+	    update(deltaTime) {
+	        if (this._remainingFrameTime <= 0) {
+	            const currentAnimationMeta = this.getCurrentAnimationMeta();
+	            const frameTime = currentAnimationMeta.frameRate === undefined ? this._frameTime : 1 / currentAnimationMeta.frameRate;
+	            this._remainingFrameTime += frameTime;
+	            this._currentSpriteIndex += 1;
+	            if (this.spriteIndex > currentAnimationMeta.last) {
+	                this._currentSpriteIndex = currentAnimationMeta.first;
+	            }
+	        }
+	        this._remainingFrameTime -= deltaTime;
+	    }
+	    /**
+	     * @returns The meta information about the current animation.
+	     * @see {@link Animator.getAnimationMeta} for more information.
+	     */
+	    getCurrentAnimationMeta() {
+	        return this.getAnimationMeta(this._currentAnimationName);
+	    }
+	    /**
+	     * Gets the meta information about an animation by name.
+	     * @param name The name of the animation.
+	     * @returns The meta information of the registered animation specified by "name".
+	     * @see {@link AnimationMeta}
+	     */
+	    getAnimationMeta(name) {
+	        return this._animations[name];
+	    }
+	    /**
+	     * Gets the pixel coordinate bounds of a sprite within the sheet.
+	     * @param spriteIndex The index of the sprite to get the bounds of within the sheet. Do not specify to get the bounds of the current sprite of the animation.
+	     * @returns The coordinate bounds (x, y, width, height) of the sprite in pixel coordinates.
+	     */
+	    getPixelBounds(spriteIndex = this._currentSpriteIndex) {
+	        return new buildExports.Vector4(this.spriteSize.width * Math.floor(spriteIndex % this.spriteGrid.width), this.spriteSize.height * Math.floor(spriteIndex / this.spriteGrid.width), this.spriteSize.width, this.spriteSize.height);
+	    }
+	    /**
+	     * Gets the UV coordinate of a sprite within the sheet.
+	     * @param spriteIndex The index of the sprite to get the bounds of within the sheet. Do not specify to get the bounds of the current sprite of the animation.
+	     * @returns The texture coordinates bounds (x, y, width, height) of the sprite in UV coordinates.
+	     */
+	    getTextureBounds(spriteIndex = this._currentSpriteIndex) {
+	        const bounds = this.getPixelBounds(spriteIndex);
+	        return new buildExports.Vector4(bounds.x / this.sheetSize.width, bounds.y / this.sheetSize.height, bounds.width / this.sheetSize.width, bounds.height / this.sheetSize.height);
+	    }
+	    getTextureCoordinates(spriteIndex = this._currentSpriteIndex) {
+	        const bounds = this.getPixelBounds(spriteIndex);
+	        return [
+	            bounds.x / this.sheetSize.width,
+	            bounds.y / this.sheetSize.height,
+	            (bounds.x + bounds.width) / this.sheetSize.width,
+	            bounds.y / this.sheetSize.height,
+	            (bounds.x + bounds.width) / this.sheetSize.width,
+	            (bounds.y + bounds.height) / this.sheetSize.height,
+	            bounds.x / this.sheetSize.width,
+	            (bounds.y + bounds.height) / this.sheetSize.height
+	        ];
+	    }
+	}
+
 	exports.Animator = Animator;
 	exports.Application = Application;
 	exports.BindGroup = BindGroup;
@@ -4629,6 +4632,4 @@ var Lucid = (function (exports) {
 	exports.Uniform = Uniform;
 	exports.VertexShader = VertexShader;
 
-	return exports;
-
-})({});
+}));
