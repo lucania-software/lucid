@@ -1,70 +1,80 @@
-import { Clock, Color, Data } from "@lucania/toolbox/shared";
+import { createRenderer, Renderer } from "@lucania/lumina";
 import { AssetManager } from "@lucania/toolbox/client";
-import { Renderer } from "./graphics/Renderer";
-import { StateManager } from "./states/StateManager";
+import { Clock, Color, Data } from "@lucania/toolbox/shared";
+import { StateManager } from "states/StateManager.js";
 
-export class Application {
+export type ApplicationOptions = {
+    name: string,
+    window: Window,
+    canvas: string | HTMLCanvasElement
+};
 
-    public canvas: HTMLCanvasElement;
-    public clock: Clock;
-    public assets: AssetManager;
-    public states: StateManager;
-    public renderer: Renderer;
+export abstract class Application {
 
-    private _running: boolean;
-    private _gameTask?: Promise<void>;
+    public readonly window: Window;
+    public readonly name: string;
+    public readonly canvas: HTMLCanvasElement;
 
-    public constructor(canvas: HTMLCanvasElement) {
-        this.canvas = canvas;
+    public readonly clock: Clock;
+    public readonly assets: AssetManager;
+    public readonly states: StateManager;
+    public readonly renderer: Renderer;
+
+    public constructor(options: ApplicationOptions) {
+        this.window = options.window;
+        this.name = options.name;
+        if (typeof options.canvas === "string") {
+            const retrievedCanvas = this.window.document.getElementById(options.canvas);
+            Data.assert(retrievedCanvas !== null, `Failed to find canvas element with ID "${options.canvas}" in DOM.`);
+            Data.assert(
+                retrievedCanvas instanceof HTMLCanvasElement,
+                `Expected element with ID "${options.canvas}" to be a ${HTMLCanvasElement.name}, but got a ${retrievedCanvas.constructor.name}.`
+            );
+            this.canvas = retrievedCanvas;
+        } else {
+            this.canvas = options.canvas;
+        }
+
         this.clock = new Clock();
         this.assets = new AssetManager();
         this.states = new StateManager();
-        this.renderer = new Renderer({ clearColor: Color.from(0x000000FF) });
-        this._running = false;
+        this.renderer = createRenderer(options.window, { clearColor: Color.BLACK });
+
+        this._run();
     }
 
-    public async initialize() {
-        const context = this.canvas.getContext("webgpu");
-        Data.assert(context !== null, "Failed to get WebGPU canvas context. It seems your browser does not support this feature!");
-        await this.renderer.initialize(context);
+    public abstract initialize(): Promise<void>;
+
+    public abstract update(deltaTime: number): void;
+
+    public abstract terminate(): Promise<void>;
+
+    private async _initialize(): Promise<void> {
+        await this.renderer.initialize(this.canvas);
     }
 
-    public async terminate() { }
+    private _update(deltaTime: number): void {
+        this.renderer.begin();
+        this.update(deltaTime);
+        this.renderer.end();
+    }
 
-    public async start() {
-        await this.states.load();
+    private async _terminate(): Promise<void> { }
+
+
+    private async _run(): Promise<void> {
+        await this._initialize();
         await this.initialize();
-        this._running = true;
-        this._gameTask = new Promise<void>((resolve) => {
-            let lastAnimationFrameTime = performance.now();
-            const receiveFrame: FrameRequestCallback = (currentTime) => {
-                if (this._running) {
-                    const deltaTime = currentTime - lastAnimationFrameTime;
-                    this.update(deltaTime);
-                    lastAnimationFrameTime = currentTime;
-                    window.requestAnimationFrame(receiveFrame);
-                } else {
-                    resolve();
-                }
-            };
-            window.requestAnimationFrame(receiveFrame);
-        });
-        await this.terminate();
-    }
-
-    public async stop() {
-        this._running = false;
-        if (this._gameTask !== undefined) {
-            await this._gameTask;
-        }
-    }
-
-    public update(deltaTime: number) {
-        this.states.update(deltaTime);
-    }
-
-    public get running() {
-        return this._running;
+        let lastFrameTime: DOMHighResTimeStamp | undefined;
+        const requestNextFrame = (currentTime?: DOMHighResTimeStamp): void => {
+            if (currentTime !== undefined && lastFrameTime !== undefined) {
+                const deltaTime = currentTime - lastFrameTime;
+                this._update(deltaTime);
+            }
+            this.window.requestAnimationFrame(requestNextFrame);
+            lastFrameTime = currentTime;
+        };
+        requestNextFrame();
     }
 
 }

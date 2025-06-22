@@ -77,3 +77,4 @@ export declare class Animator<Map extends AnimationMap> {
     getTextureBounds(spriteIndex?: number): Vector4;
     getTextureCoordinates(spriteIndex?: number): number[];
 }
+//# sourceMappingURL=Animator.d.ts.map

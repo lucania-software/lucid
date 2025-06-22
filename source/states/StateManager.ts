@@ -1,5 +1,5 @@
 import { Data } from "@lucania/toolbox/shared";
-import { State } from "./State";
+import { State } from "./State.js";
 
 interface StateMap {
     [key: string]: State

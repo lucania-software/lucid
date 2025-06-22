@@ -1,6 +1,6 @@
 import { Data } from "@lucania/toolbox/shared";
-import { Tuple2, Vector2, Vector4, VectorSource, VectorToolbox } from "@lucania/vectorics";
-import { Application } from "../Application";
+import { Tuple2, Vector2, Vector4, VectorSource } from "@lucania/vectorics";
+import { Application } from "../Application.js";
 
 /**
  * The meta information describing an animation controlled by {@link Animator}.
@@ -39,8 +39,8 @@ export class Animator<Map extends AnimationMap> {
      * @see {@link AnimationMap}.
      */
     public constructor(sheetSize: VectorSource<Tuple2>, spriteSize: VectorSource<Tuple2>, animations: Map) {
-        this.sheetSize = VectorToolbox.fromSource(2, sheetSize);
-        this.spriteSize = VectorToolbox.fromSource(2, spriteSize);
+        this.sheetSize = Vector2.from(sheetSize);
+        this.spriteSize = Vector2.from(spriteSize);
         Data.assert(this.sheetSize.width % this.spriteSize.width === 0, `Sprites of width ${this.spriteSize.width} do not pack nicely into a sprite sheet of width ${this.sheetSize.width}!`);
         Data.assert(this.sheetSize.height % this.spriteSize.height === 0, `Sprites of height ${this.spriteSize.height} do not pack nicely into a sprite sheet of height ${this.sheetSize.height}!`);
         Data.assert(Object.keys(animations).length > 0, `Attempted to create an animator without any animations supplied!`);

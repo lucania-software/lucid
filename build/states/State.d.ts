@@ -11,3 +11,4 @@ export declare class State {
     update(deltaTime: number): void;
     exit(newState: State): void;
 }
+//# sourceMappingURL=State.d.ts.map

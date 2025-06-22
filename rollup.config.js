@@ -1,20 +1,25 @@
-import TypeScriptPlugin from "@rollup/plugin-typescript";
-import { nodeResolve as NodeResolvePlugin } from "@rollup/plugin-node-resolve";
-import CommonJsPlugin from "@rollup/plugin-commonjs";
-import { babel as BabelPlugin } from "@rollup/plugin-babel";
+import commonjs from "@rollup/plugin-commonjs";
+import nodeResolve from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
+import typescript from "@rollup/plugin-typescript";
+import { string } from "rollup-plugin-string";
 
 /** @type {import("rollup").RollupOptions} */
 export default {
     input: "./source/index.ts",
     output: {
         file: "./build/index.js",
-        name: "Lucid",
-        format: "umd"
+        format: "umd",
+        name: "Lucid"
     },
     plugins: [
-        TypeScriptPlugin({ tsconfig: "./source/tsconfig.json" }),
-        NodeResolvePlugin(),
-        CommonJsPlugin(),
-        BabelPlugin({ babelHelpers: "bundled", presets: ["@babel/preset-env"] })
+        string({ include: "**/*.wgsl" }),
+        nodeResolve({
+            browser: true,
+            extensions: [".ts"]
+        }),
+        typescript({ tsconfig: "./tsconfig.json" }),
+        commonjs(),
+        replace({ preventAssignment: true })
     ]
 };

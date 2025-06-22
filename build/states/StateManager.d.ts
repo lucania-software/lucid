@@ -1,4 +1,4 @@
-import { State } from "./State";
+import { State } from "./State.js";
 export declare class StateManager {
     private _stateMap;
     private _currentState?;
@@ -11,3 +11,4 @@ export declare class StateManager {
     change(stateName: string): Promise<void>;
     load(): Promise<void>;
 }
+//# sourceMappingURL=StateManager.d.ts.map
